@@ -17,7 +17,5 @@
 
 void nec_delay(uint32_t delay);
 void nec_send_code(uint8_t, uint8_t, uint8_t);
-void nec_send_code_no_carrier(uint8_t, uint8_t, uint8_t);
-void nec_send_bom(void);
 
 #endif /* INC_NEC_IR_DRIVER_H_ */
