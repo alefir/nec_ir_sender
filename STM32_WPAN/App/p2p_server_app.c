@@ -32,9 +32,13 @@ void P2PS_STM_App_Notification(P2PS_STM_App_Notification_evt_t *pNotification)
     case P2PS_STM_NOTIFY_DISABLED_EVT:
       break;
 
-    case P2PS_STM_WRITE_EVT:;
-    	uint8_t payload = pNotification->DataTransfered.pPayload[1];
-    	nec_send_code(0x00, 0x00, payload);
+    case P2PS_STM_WRITE_EVT:; /* if a new bluetooth event is a write event from the client with a payload */
+    	uint8_t payload = pNotification->DataTransfered.pPayload[1]; /* grab the command byte of the payload */
+    	nec_send_code(0x00, 0x00, payload); /* transmit the command byte
+    	                                       NOTE: the LED strip that I am controlling does not read the
+    	                                       address bytes, only the command byte. This is why the low
+    	                                       and high address bytes (or address and ~address for classic
+    	                                       NEC) are hardcoded to 0x00. */
       break;
 
     default:
