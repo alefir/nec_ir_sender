@@ -31,7 +31,7 @@ All of the 8-bit sections of the address and command are transmitted least-signi
 
 ### Broadcasting
 
-The 38.222kHz carrier frequency is generated via PWM through the hardware timer TIM1. It's configured in [MX_TIM1_INIT()](./Core/Src/main.c:302).
+The 38.222kHz carrier frequency is generated via PWM through the hardware timer TIM1. It's configured in MX\_TIM1\_INIT() in [main.c](./Core/Src/main.c).
 
 The timer increment period is set to 836, and the pulse to 418, which with a 32MHz clock gives us a 38.22kHz pulse with a 50% duty cycle.
 
