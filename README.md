@@ -14,6 +14,8 @@ The P-NUCLEO-WB55 uses Bluetooth Low Energy to broadcast and advertise a GATT se
 
 The BLE event is handled at /STM32\_WPAN/App/p2p\_server\_app.c:35 and the IR rebroadcast is handled by /Core/Src/nec\_ir\_driver.c:36.
 
+### NEC IR Protocol
+
 The OEM remote for my LED strip uses the NEC IR protocol, which Altium provides some [nice documentation](https://techdocs.altium.com/display/FPGA/NEC+Infrared+Transmission+Protocol) for, but here's a quick summary:
 
 A logical 1 is a 562.5us pulse followed by a 562.5us space, and a logical 0 is a 562.5us pulse followed by a 1.6875ms space, both modulated onto a 38.222kHz carrier frequency.
@@ -26,3 +28,33 @@ Because a logical 1 and logical 0 are different lengths of time, the number of e
 The command section is an 8-bit command followed by it's 8-bit logical inverse.
 
 All of the 8-bit sections of the address and command are transmitted least-significant-bit first.
+
+### Broadcasting
+
+The 38.222kHz carrier frequency is generated via PWM through the hardware timer TIM1. It's configured in [MX_TIM1_INIT()](./Core/Src/main.c:302).
+
+The timer increment period is set to 836, and the pulse to 418, which with a 32MHz clock gives us a 38.22kHz pulse with a 50% duty cycle.
+
+PWM Generation is enabled or disabled to send the logical values of the NEC code, and the output of the PWM generator is directly connected to a 940nm IR LED.
+
+### Timing
+
+The HAL driver provided by the manufacturer only provides delay resolution down to integer milliseconds, which is inadequate for the 0.5625 millisecond timing needed for the short pulses of the NEC protocol.
+
+This was solved by using inline assembly to have a simple loop to delay:
+
+```asm
+dloop:
+	subs r0, r0, #1
+	bne dloop
+```
+
+Before the number of cycles is put into register r0, the number is divided by three. This comes from a division by 2 due to there being 2 instruction cycles per loop, and a multiplication by 2/3 because
+my oscilloscope read all of the timings as 33% too fast without it.
+
+## How I got the codes
+
+I found a github repo claiming to have the IR codes for a very similar LED strip to mine (same remote and a very similar looking controller) but none of the codes worked.
+
+I manually went through all data values from 0 to FF and wrote down what happened to try and match hex values to buttons on the remote. As far as I can tell, the LED controller doesn't actually read the address bytes and only cares about the
+data byte, so I hardcoded the lower and upper address bytes to 00 and FF to keep the message length correct.

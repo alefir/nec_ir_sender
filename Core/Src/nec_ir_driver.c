@@ -16,11 +16,11 @@ void nec_delay(uint32_t delay) {
 	 * system function that allows for the sub-millisecond delays that I need
 	 * for NEC timing. The HAL driver only provides a delay of integer milliseconds,
 	 * I'm guessing because the RTOS runs on a 1ms tick. There's probably a more
-	 * proper way of doing this, but I like that I can now say I've now used ASM
+	 * proper way of doing this, but I like that I can now say I've used ASM
 	 * outside of a classroom.
 	 */
 	register int R0 __asm("r0");
-	R0 = delay / 3; /* divide by 2 because 2 instruction cycles per loop,
+	R0 = delay / 3; /* divided by 2 because 2 instruction cycles per loop,
 	                   then multiplied by 2/3 because my oscilloscope read
 	                   all of the NEC timings running 33% slow, due to what
 	                   I believe is scheduling overhead from the RTOS */
